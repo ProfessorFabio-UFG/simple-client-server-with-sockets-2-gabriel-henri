@@ -1,9 +1,27 @@
 from socket  import *
-from constCS import * #-
+from constCS import *
+from threading import *
 
-s = socket(AF_INET, SOCK_STREAM)
-s.connect((HOST, PORT)) # connect to server (block until accepted)
-s.send(str.encode('Hello, world'))  # send some data
-data = s.recv(1024)     # receive the response
-print (bytes.decode(data))            # print the result
-s.close()               # close the connection
+cliente = socket(AF_INET, SOCK_STREAM)
+cliente.connect((HOST, PORT)) 
+
+
+def receber_mensagem():
+    while True:
+        try:
+            mensagem = cliente.recv(1024).decode()
+            print(mensagem)
+        except:
+            print("Conexão perdida")
+            cliente.close()
+            break
+
+thread_receber = Thread(target=receber_mensagem)
+thread_receber.start()
+
+while True:
+    mensagem = input("")
+    if mensagem.lower() == "sair":
+        cliente.close()
+        break
+    cliente.send(mensagem.encode())
